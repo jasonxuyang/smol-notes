@@ -1,5 +1,6 @@
 "use client";
 
+import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/site";
 import type { Note } from "@/types/notes";
 
 type EmptySidePanelProps = {
@@ -25,12 +26,8 @@ export function EmptySidePanel({ past, onOpenPast }: EmptySidePanelProps) {
   return (
     <div className="empty-side">
       <div className="intro">
-        <p className="intro__lead">SmolNotes</p>
-        <p className="intro__body">
-          An experiment in local writing and generative motion, powered by a
-          small language model running entirely in your browser. Nothing
-          leaves your machine.
-        </p>
+        <p className="intro__lead">{SITE_NAME}</p>
+        <p className="intro__body">{SITE_DESCRIPTION}</p>
       </div>
 
       {past.length > 0 ? (
