@@ -7,6 +7,12 @@
   --line: #222222;
   --panel: rgba(0, 0, 0, 0.72);
   --font: var(--font-space-mono), "Space Mono", ui-monospace, monospace;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --app-height: 100vh;
+  --app-height: 100dvh;
 }
 
 * {
@@ -22,10 +28,12 @@ body {
   font-family: var(--font);
   font-size: 13px;
   line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
-  min-height: 100vh;
+  min-height: var(--app-height);
 }
 
 button,
@@ -56,10 +64,11 @@ textarea {
 /* boot */
 
 .app--boot {
-  min-height: 100vh;
+  min-height: var(--app-height);
   display: grid;
   place-items: center;
-  padding: 1.5rem;
+  padding: calc(1.5rem + var(--safe-top)) calc(1.5rem + var(--safe-right))
+    calc(1.5rem + var(--safe-bottom)) calc(1.5rem + var(--safe-left));
 }
 
 .boot {
@@ -129,13 +138,16 @@ textarea {
 /* live shell */
 
 .app--live {
-  min-height: 100vh;
-  height: 100vh;
-  max-height: 100vh;
+  min-height: var(--app-height);
+  height: var(--app-height);
+  max-height: var(--app-height);
   overflow: hidden;
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   grid-template-rows: minmax(0, 1fr);
+  padding-top: var(--safe-top);
+  padding-right: var(--safe-right);
+  padding-left: var(--safe-left);
 }
 
 .session {
@@ -183,6 +195,7 @@ textarea {
   outline: none;
   background: transparent;
   padding: 0;
+  min-height: 1.75rem;
   caret-color: #ffffff;
 }
 
@@ -207,24 +220,32 @@ textarea {
 
 .empty-side {
   height: 100%;
+  min-width: 0;
   min-height: 0;
   width: 100%;
-  overflow: auto;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-x: none;
   padding: 1.5rem 1.75rem 1.75rem;
   display: block;
   box-sizing: border-box;
+  -webkit-overflow-scrolling: touch;
 }
 
 .empty-side__past {
   margin-top: 0;
   width: 100%;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .empty-side .intro {
   display: grid;
   gap: 0.65rem;
   width: 100%;
-  max-width: none;
+  min-width: 0;
+  max-width: 100%;
   margin: 0 0 1.25rem;
 }
 
@@ -233,16 +254,20 @@ textarea {
   color: var(--fg);
   font-size: 13px;
   letter-spacing: 0.04em;
+  overflow-wrap: anywhere;
 }
 
 .empty-side .intro__body {
   margin: 0;
   width: 100%;
-  max-width: none;
+  min-width: 0;
+  max-width: 100%;
   color: var(--dim);
   font-size: 13px;
   line-height: 1.55;
   text-wrap: pretty;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 .note-editor__mirror,
@@ -268,6 +293,7 @@ textarea {
   pointer-events: none;
   color: var(--fg);
   background: transparent;
+  overflow-x: hidden;
 }
 
 .note-editor__ghost {
@@ -298,6 +324,10 @@ textarea {
   width: 0.45rem;
 }
 
+.note-editor__touch-actions {
+  display: none;
+}
+
 .note-editor__input {
   width: 100%;
   height: 100%;
@@ -324,6 +354,8 @@ textarea {
 .past {
   display: grid;
   gap: 0.45rem;
+  min-width: 0;
+  max-width: 100%;
 }
 
 .past__head {
@@ -338,10 +370,19 @@ textarea {
   padding: 0;
   display: grid;
   gap: 0.15rem;
+  min-width: 0;
+  max-width: 100%;
+}
+
+.past__list > li {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .past__item {
   width: 100%;
+  max-width: 100%;
+  min-width: 0;
   display: flex;
   justify-content: space-between;
   gap: 1rem;
@@ -366,7 +407,9 @@ textarea {
 }
 
 .past__title {
+  display: block;
   min-width: 0;
+  max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -381,6 +424,8 @@ textarea {
 .viz-pane {
   min-width: 0;
   min-height: 0;
+  width: 100%;
+  max-width: 100%;
   height: 100%;
   overflow: hidden;
   display: grid;
@@ -434,6 +479,7 @@ textarea {
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0.35rem 0.45rem;
+  min-width: 0;
 }
 
 .status-line__stat-label {
@@ -450,6 +496,7 @@ textarea {
   cursor: pointer;
   color: #ffffff;
   background: #000000;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .btn:hover:not(:disabled) {
@@ -473,11 +520,11 @@ textarea {
 
 .app__toast {
   position: fixed;
-  left: 0.75rem;
-  bottom: 0.75rem;
+  left: calc(0.75rem + var(--safe-left));
+  bottom: calc(0.75rem + var(--safe-bottom));
   z-index: 30;
   margin: 0;
-  max-width: min(520px, calc(100vw - 1.5rem));
+  max-width: min(520px, calc(100vw - 1.5rem - var(--safe-left) - var(--safe-right)));
   padding: 0.5rem 0.65rem;
   border: 1px solid #ffffff;
   background: #000000;
@@ -486,17 +533,108 @@ textarea {
 @media (max-width: 720px) {
   html,
   body {
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .app--live {
     grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, 1fr) minmax(180px, 32vh);
+    grid-template-rows: minmax(0, 1fr) minmax(120px, 28dvh);
+    padding-bottom: 0;
+  }
+
+  .app--live .viz-pane {
+    order: -1;
+    border-bottom: 1px solid var(--line);
   }
 
   .session {
     border-right: none;
-    border-bottom: 1px solid var(--line);
+    border-bottom: none;
+  }
+
+  .note-pane__bar {
+    padding: 0.75rem 1rem 0.55rem;
+  }
+
+  .note-pane__title {
+    font-size: 13px;
+    min-height: 2.75rem;
+  }
+
+  .note-editor__mirror,
+  .note-editor__input {
+    font-size: 16px;
+    padding: 1rem;
+  }
+
+  .empty-side {
+    padding: 1.1rem 1rem 1.25rem;
+  }
+
+  .past__list {
+    gap: 0;
+  }
+
+  .past__item {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.2rem;
+    min-height: 2.75rem;
+    padding: 0.7rem 0;
+  }
+
+  .past__when {
+    font-size: 12px;
+  }
+
+  .status-line {
+    gap: 0.5rem;
+    padding: 0.35rem 0.65rem calc(0.35rem + var(--safe-bottom));
+    font-size: 12px;
+  }
+
+  .ascii-backdrop__pre {
+    font-size: 12px;
+    line-height: 16px;
+    letter-spacing: 0.18em;
+    padding: 0.5rem 0.65rem;
+  }
+
+  .btn {
+    min-height: 2.75rem;
+    padding: 0.55rem 0.9rem;
+  }
+}
+
+@media (pointer: coarse) {
+  .note-editor__inline-hint {
+    display: none;
+  }
+
+  .note-editor__mirror,
+  .note-editor__input {
+    padding-bottom: 4.5rem;
+  }
+
+  .note-editor__touch-actions {
+    display: flex;
+    position: absolute;
+    right: max(0.75rem, var(--safe-right));
+    bottom: 0.75rem;
+    z-index: 2;
+    gap: 0.5rem;
+  }
+
+  .note-editor__touch-btn {
+    min-height: 2.75rem;
+    min-width: 5.5rem;
+    padding: 0.55rem 0.9rem;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+  }
+
+  .app__toast {
+    bottom: calc(4.5rem + var(--safe-bottom));
   }
 }
 

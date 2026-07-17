@@ -15,11 +15,11 @@ import {
 import { MODEL_ID } from "@/lib/model-config";
 import {
   createEmptyNote,
+  DEFAULT_NOTE_TITLE,
   listNotes,
   loadNoteStore,
   removeNote,
   saveNoteStore,
-  withAutoTitle,
   upsertNote,
 } from "@/lib/note-store";
 import type { VisualizationEvent } from "@/lib/visualization-events";
@@ -97,6 +97,7 @@ export function AppShell() {
   const [pulseKey, setPulseKey] = useState("");
   const [past, setPast] = useState<Note[]>(boot.past);
   const [stats, setStats] = useState<SessionStats>(EMPTY_STATS);
+  const [acceptKey, setAcceptKey] = useState(0);
 
   const ready =
     modelState === "ready" ||
@@ -365,7 +366,7 @@ export function AppShell() {
   const handleBodyChange = (body: string, nextCaret: number) => {
     caretRef.current = nextCaret;
     setCaret(nextCaret);
-    patchNote((prev) => withAutoTitle(prev, body));
+    patchNote((prev) => ({ ...prev, body }));
     if (!ready) return;
     autocompleteRef.current?.setClient(clientRef.current);
     autocompleteRef.current?.schedule(body, nextCaret);
@@ -382,8 +383,15 @@ export function AppShell() {
   const handleTitleBlur = () => {
     patchNote((prev) => {
       const trimmed = prev.title.replace(/\s+/g, " ").trim();
+      if (!trimmed) {
+        return {
+          ...prev,
+          title: DEFAULT_NOTE_TITLE,
+          titleManual: false,
+        };
+      }
       if (trimmed === prev.title) return prev;
-      return { ...prev, title: trimmed || "untitled" };
+      return { ...prev, title: trimmed, titleManual: true };
     });
   };
 
@@ -408,7 +416,8 @@ export function AppShell() {
     countedOfferRef.current = false;
     setStats((prev) => ({ ...prev, accepted: prev.accepted + 1 }));
     autocompleteRef.current?.accept();
-    patchNote((prev) => withAutoTitle(prev, next));
+    patchNote((prev) => ({ ...prev, body: next }));
+    setAcceptKey((prev) => prev + 1);
     // Place caret after insert; think loop re-aims at the new prefix.
     requestAnimationFrame(() => {
       const el = document.querySelector(
@@ -457,6 +466,7 @@ export function AppShell() {
           caret={caret}
           suggestion={suggestion}
           disabled={false}
+          acceptKey={acceptKey}
           onBodyChange={handleBodyChange}
           onTitleChange={handleTitleChange}
           onTitleBlur={handleTitleBlur}

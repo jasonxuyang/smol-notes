@@ -3,6 +3,8 @@ import type { Note } from "@/types/notes";
 const STORAGE_KEY = "smol-notes.v1";
 const MAX_NOTES = 10;
 
+export const DEFAULT_NOTE_TITLE = "Untitled note";
+
 export type NoteStoreData = {
   version: 1;
   activeId: string | null;
@@ -14,10 +16,12 @@ function emptyStore(): NoteStoreData {
 }
 
 function normalizeNote(n: Partial<Note> & { id: string }): Note {
+  const titleManual = Boolean(n.titleManual);
+  const rawTitle = typeof n.title === "string" ? n.title.trim() : "";
   return {
     id: n.id,
-    title: typeof n.title === "string" && n.title.trim() ? n.title : "untitled",
-    titleManual: Boolean(n.titleManual),
+    title: titleManual && rawTitle ? rawTitle : DEFAULT_NOTE_TITLE,
+    titleManual,
     body: typeof n.body === "string" ? n.body : "",
     updatedAt: typeof n.updatedAt === "number" ? n.updatedAt : Date.now(),
   };
@@ -51,29 +55,6 @@ export function saveNoteStore(store: NoteStoreData): void {
   }
 }
 
-export function titleFromBody(body: string): string {
-  const line =
-    body
-      .split("\n")
-      .map((l) => l.trim())
-      .find((l) => l.length > 0) ?? "";
-  const t = line.replace(/\s+/g, " ");
-  if (!t) return "untitled";
-  return t.length > 48 ? `${t.slice(0, 47)}…` : t;
-}
-
-/** Auto title from body unless the user has locked it. */
-export function withAutoTitle(note: Note, body: string = note.body): Note {
-  if (note.titleManual) {
-    return { ...note, body };
-  }
-  return {
-    ...note,
-    body,
-    title: titleFromBody(body),
-  };
-}
-
 export function upsertNote(store: NoteStoreData, note: Note): NoteStoreData {
   const rest = store.notes.filter((n) => n.id !== note.id);
   const notes = [note, ...rest]
@@ -102,7 +83,7 @@ export function listNotes(store: NoteStoreData): Note[] {
 export function createEmptyNote(id: string): Note {
   return {
     id,
-    title: "untitled",
+    title: DEFAULT_NOTE_TITLE,
     titleManual: false,
     body: "",
     updatedAt: Date.now(),
