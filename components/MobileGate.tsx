@@ -41,8 +41,10 @@ export function MobileGate({ children }: { children: ReactNode }) {
             aria-label="Buy me a coffee"
           />
           <p className="mobile-gate__body">
-            {SITE_NAME} runs local LLMs in your browser and isn&apos;t built for
-            mobile. Please use a computer.
+            {SITE_NAME}
+            {" "}
+            runs local AI models in your browser and isn&apos;t built for mobile.
+            Please use a computer.
           </p>
         </div>
       </main>
