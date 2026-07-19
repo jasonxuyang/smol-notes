@@ -13,3 +13,5 @@ export const AUTHOR_NAME = "Jason Yang";
 export const AUTHOR_HANDLE = "jasonxuyang";
 
 export const AUTHOR_URL = "https://jasonxuyang.com";
+
+export const BUY_ME_A_COFFEE_URL = `https://buymeacoffee.com/${AUTHOR_HANDLE}`;

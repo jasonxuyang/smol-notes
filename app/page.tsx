@@ -1,5 +1,10 @@
 import { AppShell } from "@/components/AppShell";
+import { MobileGate } from "@/components/MobileGate";
 
 export default function HomePage() {
-  return <AppShell />;
+  return (
+    <MobileGate>
+      <AppShell />
+    </MobileGate>
+  );
 }
